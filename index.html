@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TokenBudget — Open Source AI Cost Tracking</title>
+  <meta name="description" content="Know exactly what your AI costs — per feature, per user, per project. Open source, self-hosted, privacy-first.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0a0f;
+      --surface:#12121a;
+      --border:#1e1e2e;
+      --text:#e2e2e8;
+      --muted:#8888a0;
+      --accent:#6c5ce7;
+      --accent-glow:#6c5ce740;
+      --green:#00b894;
+      --green-glow:#00b89440;
+    }
+    html{scroll-behavior:smooth}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* Nav */
+    nav{
+      position:fixed;top:0;width:100%;z-index:100;
+      background:var(--bg)ee;
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      padding:0 2rem;
+    }
+    .nav-inner{
+      max-width:1100px;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;
+      height:60px;
+    }
+    .logo{font-weight:700;font-size:1.15rem;letter-spacing:-0.02em}
+    .logo span{color:var(--accent)}
+    .nav-links{display:flex;gap:1.5rem;align-items:center}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+
+    /* Buttons */
+    .btn{
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.65rem 1.4rem;border-radius:8px;
+      font-size:.9rem;font-weight:600;
+      text-decoration:none;transition:all .2s;
+      cursor:pointer;border:none;
+    }
+    .btn-primary{
+      background:var(--accent);color:#fff;
+      box-shadow:0 0 20px var(--accent-glow);
+    }
+    .btn-primary:hover{filter:brightness(1.15);transform:translateY(-1px)}
+    .btn-outline{
+      background:transparent;color:var(--text);
+      border:1px solid var(--border);
+    }
+    .btn-outline:hover{border-color:var(--muted);background:var(--surface)}
+
+    /* Hero */
+    .hero{
+      max-width:1100px;margin:0 auto;
+      padding:10rem 2rem 6rem;
+      text-align:center;
+    }
+    .badge{
+      display:inline-block;
+      padding:.35rem .9rem;border-radius:99px;
+      font-size:.78rem;font-weight:600;
+      background:var(--green-glow);color:var(--green);
+      border:1px solid var(--green)40;
+      margin-bottom:1.5rem;
+    }
+    .hero h1{
+      font-size:clamp(2.4rem,5.5vw,4rem);
+      font-weight:800;letter-spacing:-0.03em;
+      line-height:1.1;margin-bottom:1.5rem;
+    }
+    .hero h1 .highlight{
+      background:linear-gradient(135deg,var(--accent),var(--green));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .hero p{
+      font-size:1.15rem;color:var(--muted);
+      max-width:600px;margin:0 auto 2.5rem;
+    }
+    .hero-buttons{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+
+    /* How it works diagram */
+    .diagram{
+      max-width:700px;margin:3rem auto 0;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;padding:1.5rem 2rem;
+      font-family:'SF Mono',SFMono-Regular,Consolas,'Liberation Mono',monospace;
+      font-size:.85rem;color:var(--muted);
+      text-align:left;line-height:1.8;
+      overflow-x:auto;
+    }
+    .diagram .accent{color:var(--accent)}
+    .diagram .green{color:var(--green)}
+
+    /* Features */
+    .features{
+      max-width:1100px;margin:0 auto;
+      padding:6rem 2rem;
+    }
+    .features h2{
+      text-align:center;font-size:2rem;font-weight:700;
+      letter-spacing:-0.02em;margin-bottom:.75rem;
+    }
+    .features .subtitle{
+      text-align:center;color:var(--muted);
+      margin-bottom:3.5rem;font-size:1.05rem;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:1.25rem;
+    }
+    .card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;padding:1.75rem;
+      transition:border-color .2s;
+    }
+    .card:hover{border-color:var(--accent)60}
+    .card-icon{font-size:1.5rem;margin-bottom:.75rem}
+    .card h3{font-size:1.05rem;font-weight:600;margin-bottom:.5rem}
+    .card p{color:var(--muted);font-size:.9rem;line-height:1.6}
+
+    /* Code block */
+    .code-section{
+      max-width:1100px;margin:0 auto;
+      padding:2rem 2rem 6rem;
+    }
+    .code-section h2{
+      text-align:center;font-size:2rem;font-weight:700;
+      letter-spacing:-0.02em;margin-bottom:.75rem;
+    }
+    .code-section .subtitle{
+      text-align:center;color:var(--muted);
+      margin-bottom:2.5rem;font-size:1.05rem;
+    }
+    .code-tabs{
+      display:flex;gap:0;margin-bottom:0;
+      max-width:700px;margin:0 auto;
+    }
+    .code-tab{
+      padding:.6rem 1.2rem;
+      font-size:.82rem;font-weight:600;
+      background:var(--surface);color:var(--muted);
+      border:1px solid var(--border);
+      cursor:pointer;transition:all .2s;
+    }
+    .code-tab:first-child{border-radius:8px 0 0 0}
+    .code-tab:last-child{border-radius:0 8px 0 0}
+    .code-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+    .code-block{
+      max-width:700px;margin:0 auto;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-top:none;
+      border-radius:0 0 12px 12px;
+      padding:1.5rem 2rem;
+      font-family:'SF Mono',SFMono-Regular,Consolas,'Liberation Mono',monospace;
+      font-size:.84rem;line-height:1.7;
+      overflow-x:auto;
+    }
+    .code-block .kw{color:var(--accent)}
+    .code-block .str{color:var(--green)}
+    .code-block .cmt{color:var(--muted)}
+
+    /* Who section */
+    .who{
+      max-width:1100px;margin:0 auto;
+      padding:2rem 2rem 6rem;
+    }
+    .who h2{
+      text-align:center;font-size:2rem;font-weight:700;
+      letter-spacing:-0.02em;margin-bottom:2.5rem;
+    }
+    .who-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:1rem;
+    }
+    .who-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:10px;padding:1.5rem;text-align:center;
+    }
+    .who-card .emoji{font-size:2rem;margin-bottom:.5rem}
+    .who-card h3{font-size:.95rem;font-weight:600;margin-bottom:.4rem}
+    .who-card p{color:var(--muted);font-size:.85rem}
+
+    /* CTA */
+    .cta{
+      text-align:center;
+      padding:5rem 2rem;
+      border-top:1px solid var(--border);
+    }
+    .cta h2{
+      font-size:2rem;font-weight:700;
+      letter-spacing:-0.02em;margin-bottom:.75rem;
+    }
+    .cta p{color:var(--muted);margin-bottom:2rem;font-size:1.05rem}
+
+    /* Footer */
+    footer{
+      text-align:center;padding:2rem;
+      color:var(--muted);font-size:.82rem;
+      border-top:1px solid var(--border);
+    }
+    footer a{color:var(--muted);text-decoration:none}
+    footer a:hover{color:var(--text)}
+
+    @media(max-width:600px){
+      .hero{padding:8rem 1.25rem 4rem}
+      .nav-links a:not(.btn){display:none}
+      .grid{grid-template-columns:1fr}
+      .diagram{font-size:.75rem;padding:1rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Token<span>Budget</span></div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#quickstart">Quick Start</a>
+      <a href="https://github.com/AIMasterLabs/tokenbudget" class="btn btn-outline">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">Open Source &middot; Apache 2.0</div>
+  <h1>Know exactly what<br>your AI <span class="highlight">actually costs</span></h1>
+  <p>Track every token, every dollar — per feature, per user, per project. Self-hosted, privacy-first. You keep your API keys.</p>
+  <div class="hero-buttons">
+    <a href="https://github.com/AIMasterLabs/tokenbudget" class="btn btn-primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+      Get Started
+    </a>
+    <a href="#quickstart" class="btn btn-outline">See How It Works</a>
+  </div>
+
+  <div class="diagram">
+    <span class="accent">Your App</span> &rarr; TokenBudget <span class="green">(proxy or SDK)</span> &rarr; <span class="accent">OpenAI / Anthropic</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Records: <span class="green">tokens, cost, model, latency</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Never records: prompts, responses, API keys<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&darr;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dashboard: <span class="green">costs by feature, user, project</span>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <h2>Everything you need</h2>
+  <p class="subtitle">Full visibility into AI spending with zero data exposure.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">&#x1f4ca;</div>
+      <h3>Real-Time Dashboard</h3>
+      <p>See costs as they happen. Break down by feature, user, project, or model. Spot anomalies before they become problems.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1f512;</div>
+      <h3>Privacy First</h3>
+      <p>Self-hosted. Your API keys pass through — never stored. Only token counts and costs are recorded. No prompts, no responses.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x26a1;</div>
+      <h3>5-Minute Setup</h3>
+      <p>Docker Compose brings up everything: PostgreSQL, Redis, API, and dashboard. One command to deploy.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1f50c;</div>
+      <h3>Multiple Integrations</h3>
+      <p>Python SDK, JavaScript SDK, proxy mode, or direct API. Works with OpenAI, Anthropic, and more.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1f3f7;&#xfe0f;</div>
+      <h3>Tag Everything</h3>
+      <p>Tag by feature, user, team, or environment. Context tags let you slice costs any way you need.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1f6a8;</div>
+      <h3>Budget Alerts</h3>
+      <p>Set spending limits per project or feature. Get notified before costs spiral. Rate limiting built in.</p>
+    </div>
+  </div>
+</section>
+
+<section class="code-section" id="quickstart">
+  <h2>Up and running in minutes</h2>
+  <p class="subtitle">Choose your integration method.</p>
+
+  <div class="code-tabs">
+    <div class="code-tab active">Python SDK</div>
+    <div class="code-tab">Proxy</div>
+    <div class="code-tab">Docker</div>
+  </div>
+
+  <div class="code-block" id="code-content">
+    <span class="kw">import</span> openai<br>
+    <span class="kw">import</span> tokenbudget<br>
+    <br>
+    <span class="cmt"># Wrap your existing client — one line change</span><br>
+    client = tokenbudget.<span class="kw">wrap</span>(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;openai.Client(),<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;api_key=<span class="str">"tb_ak_YOUR_KEY"</span>,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;endpoint=<span class="str">"http://localhost:2727"</span><br>
+    )<br>
+    <br>
+    <span class="cmt"># Use as normal — costs tracked automatically</span><br>
+    response = client.chat.completions.<span class="kw">create</span>(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;model=<span class="str">"gpt-4o"</span>,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"Hello"</span>}]<br>
+    )
+  </div>
+</section>
+
+<section class="who">
+  <h2>Built for teams like yours</h2>
+  <div class="who-grid">
+    <div class="who-card">
+      <div class="emoji">&#x1f680;</div>
+      <h3>Startups using AI APIs</h3>
+      <p>Track costs before they surprise you</p>
+    </div>
+    <div class="who-card">
+      <div class="emoji">&#x1f465;</div>
+      <h3>Multi-feature teams</h3>
+      <p>See which feature costs the most</p>
+    </div>
+    <div class="who-card">
+      <div class="emoji">&#x1f4b0;</div>
+      <h3>Per-customer billing</h3>
+      <p>Know your cost per user</p>
+    </div>
+    <div class="who-card">
+      <div class="emoji">&#x1f4b8;</div>
+      <h3>Shocked by AI bills</h3>
+      <p>Never again</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Start tracking your AI costs today</h2>
+  <p>Open source. Free forever. Deploy in 5 minutes.</p>
+  <div class="hero-buttons">
+    <a href="https://github.com/AIMasterLabs/tokenbudget" class="btn btn-primary">View on GitHub</a>
+  </div>
+</section>
+
+<footer>
+  <p>TokenBudget is open source under the <a href="https://github.com/AIMasterLabs/tokenbudget/blob/main/LICENSE">Apache 2.0 License</a>.</p>
+</footer>
+
+<script>
+  // Simple tab switching for code examples
+  const tabs = document.querySelectorAll('.code-tab');
+  const codeBlock = document.getElementById('code-content');
+
+  const examples = {
+    'Python SDK': `<span class="kw">import</span> openai<br><span class="kw">import</span> tokenbudget<br><br><span class="cmt"># Wrap your existing client — one line change</span><br>client = tokenbudget.<span class="kw">wrap</span>(<br>&nbsp;&nbsp;&nbsp;&nbsp;openai.Client(),<br>&nbsp;&nbsp;&nbsp;&nbsp;api_key=<span class="str">"tb_ak_YOUR_KEY"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;endpoint=<span class="str">"http://localhost:2727"</span><br>)<br><br><span class="cmt"># Use as normal — costs tracked automatically</span><br>response = client.chat.completions.<span class="kw">create</span>(<br>&nbsp;&nbsp;&nbsp;&nbsp;model=<span class="str">"gpt-4o"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"Hello"</span>}]<br>)`,
+
+    'Proxy': `<span class="cmt"># Zero code change — just point to TokenBudget</span><br><span class="kw">import</span> openai<br><br>client = openai.OpenAI(<br>&nbsp;&nbsp;&nbsp;&nbsp;api_key=<span class="str">"sk-your-openai-key"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;base_url=<span class="str">"http://localhost:2727/proxy/openai/v1"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;default_headers={<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"X-TokenBudget-Key"</span>: <span class="str">"tb_ak_YOUR_KEY"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"X-TB-Feature"</span>: <span class="str">"chatbot"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>)`,
+
+    'Docker': `<span class="cmt"># Clone and start — everything included</span><br>$ git clone https://github.com/AIMasterLabs/tokenbudget<br>$ <span class="kw">cd</span> tokenbudget<br>$ docker compose up -d<br><br><span class="cmt"># Verify it's running</span><br>$ curl http://localhost:2727/health<br><span class="str">{"status":"ok","version":"0.2.0","db":"connected","redis":"connected"}</span><br><br><span class="cmt"># Create your first API key</span><br>$ curl -X POST http://localhost:2727/api/keys \\<br>&nbsp;&nbsp;-H <span class="str">"Content-Type: application/json"</span> \\<br>&nbsp;&nbsp;-d <span class="str">'{"name": "my-app"}'</span>`
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      codeBlock.innerHTML = examples[tab.textContent];
+    });
+  });
+</script>
+
+</body>
+</html>
